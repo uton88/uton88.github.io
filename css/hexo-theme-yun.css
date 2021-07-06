@@ -191,21 +191,21 @@ body::before {
   width: 100%;
   height: 100%;
   z-index: -1;
-  background-image: url("https://cdn.jsdelivr.net/gh/Sknp1006/cdn/img/bg/bg_0_babel2.png");
+  background-image: url("/images/bg_0_babel2.png");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   animation-name: bgFadeIn;
   animation-duration: 2s;
-  opacity: 0.8;
-  filter: blur(30px);
+  opacity: 1;
+  filter: blur(1px);
 }
 @-moz-keyframes bgFadeIn {
   from {
     opacity: 0;
   }
   to {
-    opacity: 0.8;
+    opacity: 1;
   }
 }
 @-webkit-keyframes bgFadeIn {
@@ -213,7 +213,7 @@ body::before {
     opacity: 0;
   }
   to {
-    opacity: 0.8;
+    opacity: 1;
   }
 }
 @-o-keyframes bgFadeIn {
@@ -221,7 +221,7 @@ body::before {
     opacity: 0;
   }
   to {
-    opacity: 0.8;
+    opacity: 1;
   }
 }
 @keyframes bgFadeIn {
@@ -229,7 +229,7 @@ body::before {
     opacity: 0;
   }
   to {
-    opacity: 0.8;
+    opacity: 1;
   }
 }
 :root {
@@ -2006,7 +2006,7 @@ body::before {
     color: var(--hty-text-color);
   }
   :root:not([data-user-color-scheme]) body::before {
-    background-image: url("https://cdn.jsdelivr.net/gh/Sknp1006/cdn/img/bg/bg_0_babel2.png");
+    background-image: url("/images/bg_0_babel2.png");
   }
   :root:not([data-user-color-scheme]) .char {
     background-color: rgba(0,0,0,0.5);
@@ -2074,7 +2074,7 @@ body::before {
   color: var(--hty-text-color);
 }
 [data-user-color-scheme='dark'] body::before {
-  background-image: url("https://cdn.jsdelivr.net/gh/Sknp1006/cdn/img/bg/bg_0_babel2.png");
+  background-image: url("/images/bg_0_babel2.png");
 }
 [data-user-color-scheme='dark'] .char {
   background-color: rgba(0,0,0,0.5);
