@@ -1,0 +1,147 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="theme-color" content="#0078E7"><meta name="author" content="uTon"><meta name="copyright" content="uTon"><meta name="generator" content="Hexo 5.4.0"><meta name="theme" content="hexo-theme-yun"><title>同步/异步、阻塞/非阻塞 | 麻将是我的一生之敌-</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@900&amp;display=swap" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/star-markdown-css@0.1.24/dist/yun/yun-markdown.min.css"><script src="//at.alicdn.com/t/font_1140697_j5gk85dg4pf.js" async></script><script src="https://cdn.jsdelivr.net/npm/scrollreveal/dist/scrollreveal.min.js" defer></script><script>document.addEventListener("DOMContentLoaded", () => {
+  [".post-card",".post-content img"].forEach((target)=> {
+    ScrollReveal().reveal(target);
+  })
+});
+</script><script src="https://cdn.jsdelivr.net/npm/pjax@latest/pjax.min.js" defer></script><script src="/js/pjax.js" defer></script><script src="https://cdn.jsdelivr.net/npm/vue@2.6.11"></script><link id="light-prism-css" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@latest/themes/prism.css" media="(prefers-color-scheme: light)"><link id="dark-prism-css" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@latest/themes/prism-twilight.css" media="(prefers-color-scheme: dark)"><link rel="icon" href="/yun.svg"><link rel="mask-icon" href="/yun.svg" color="#0078E7"><link rel="alternate icon" href="/yun.ico"><link rel="preload" href="/css/hexo-theme-yun.css" as="style"><link rel="preload" href="/js/utils.js" as="script"><link rel="preload" href="/js/hexo-theme-yun.js" as="script"><link rel="prefetch" href="/js/sidebar.js" as="script"><link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin><script id="yun-config">
+    const Yun = window.Yun || {};
+    window.CONFIG = {"hostname":"yoursite.com","root":"/","title":"再也不打麻将","version":"1.6.1","mode":"dark","copycode":true,"page":{"isPost":true},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}.","hits":"${hits} results found","hits_time":"${hits} results found in ${time} ms"},"anonymous_image":"https://cdn.jsdelivr.net/gh/YunYouJun/cdn/img/avatar/none.jpg","fireworks":{"colors":["102, 167, 221","62, 131, 225","33, 78, 194"]}};
+  </script><link rel="stylesheet" href="/css/hexo-theme-yun.css"><script src="/js/utils.js"></script><script src="/js/hexo-theme-yun.js"></script><script>(function(){
+  var bp = document.createElement('script');
+  var curProtocol = window.location.protocol.split(':')[0];
+  if (curProtocol === 'https') {
+    bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+  }
+  else {
+    bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+  }
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(bp, s);
+})();</script><meta name="description" content="阻塞&#x2F;非阻塞、同步&#x2F;异步，每次被问到这个问题都感觉自己清楚但是又说的不好，知道他们两个有区别但当真正去描述的时候又说不出来他俩的区别，准备特别写一篇描述一下，加深一下自己的印象。 IO 概念区分四个相关概念：  同步（Synchronous） 异步( Asynchronous) 阻塞( Blocking ) 非阻塞( Nonblocking)">
+<meta property="og:type" content="article">
+<meta property="og:title" content="同步&#x2F;异步、阻塞&#x2F;非阻塞">
+<meta property="og:url" content="http://yoursite.com/2021/07/17/%E5%90%8C%E6%AD%A5-%E5%BC%82%E6%AD%A5%E3%80%81%E9%98%BB%E5%A1%9E-%E9%9D%9E%E9%98%BB%E5%A1%9E/index.html">
+<meta property="og:site_name" content="麻将是我的一生之敌-">
+<meta property="og:description" content="阻塞&#x2F;非阻塞、同步&#x2F;异步，每次被问到这个问题都感觉自己清楚但是又说的不好，知道他们两个有区别但当真正去描述的时候又说不出来他俩的区别，准备特别写一篇描述一下，加深一下自己的印象。 IO 概念区分四个相关概念：  同步（Synchronous） 异步( Asynchronous) 阻塞( Blocking ) 非阻塞( Nonblocking)">
+<meta property="og:locale">
+<meta property="og:image" content="https://i.loli.net/2020/09/29/7pgbQxJKc6PA3NO.png">
+<meta property="og:image" content="https://i.loli.net/2020/09/29/7BOPHEpQbsztiGd.png">
+<meta property="og:image" content="https://i.loli.net/2020/09/29/pjo2Z4KMlguE7xB.png">
+<meta property="og:image" content="https://i.loli.net/2020/09/29/MiF9YyrPbl72SRt.png">
+<meta property="og:image" content="https://i.loli.net/2020/09/29/4ctvnrPU1bmQNY7.png">
+<meta property="article:published_time" content="2021-07-16T17:40:17.000Z">
+<meta property="article:modified_time" content="2021-07-16T17:41:39.423Z">
+<meta property="article:author" content="uTon">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2020/09/29/7pgbQxJKc6PA3NO.png"><script src="/js/ui/mode.js"></script></head><body><script defer src="https://cdn.jsdelivr.net/npm/animejs@latest"></script><script defer src="/js/ui/fireworks.js"></script><canvas class="fireworks"></canvas><div class="container"><a class="sidebar-toggle hty-icon-button" id="menu-btn"><div class="hamburger hamburger--spin" type="button"><span class="hamburger-box"><span class="hamburger-inner"></span></span></div></a><div class="sidebar-toggle sidebar-overlay"></div><aside class="sidebar"><script src="/js/sidebar.js"></script><ul class="sidebar-nav"><li class="sidebar-nav-item sidebar-nav-toc hty-icon-button sidebar-nav-active" data-target="post-toc-wrap" title="Table of Contents"><svg class="icon" aria-hidden="true"><use xlink:href="#icon-list-ordered"></use></svg></li><li class="sidebar-nav-item sidebar-nav-overview hty-icon-button" data-target="site-overview-wrap" title="Overview"><svg class="icon" aria-hidden="true"><use xlink:href="#icon-passport-line"></use></svg></li></ul><div class="sidebar-panel" id="site-overview-wrap"><div class="site-info fix-top"><a class="site-author-avatar" href="/about/" title="uTon"><img width="96" loading="lazy" src="/images/avatar.jpg" alt="uTon"></a><div class="site-author-name"><a href="/about/">uTon</a></div><span class="site-name">麻将是我的一生之敌-</span><sub class="site-subtitle">All at sea.</sub><div class="site-desciption">希望能成为一个有趣的人</div></div><nav class="site-state"><a class="site-state-item hty-icon-button icon-home" href="/" title="Home"><span class="site-state-item-icon"><svg class="icon" aria-hidden="true"><use xlink:href="#icon-home-4-line"></use></svg></span></a><div class="site-state-item"><a href="/archives/" title="Archives"><span class="site-state-item-icon"><svg class="icon" aria-hidden="true"><use xlink:href="#icon-archive-line"></use></svg></span><span class="site-state-item-count">12</span></a></div><div class="site-state-item"><a href="/categories/" title="Categories"><span class="site-state-item-icon"><svg class="icon" aria-hidden="true"><use xlink:href="#icon-folder-2-line"></use></svg></span><span class="site-state-item-count">3</span></a></div><div class="site-state-item"><a href="/tags/" title="Tags"><span class="site-state-item-icon"><svg class="icon" aria-hidden="true"><use xlink:href="#icon-price-tag-3-line"></use></svg></span><span class="site-state-item-count">3</span></a></div><a class="site-state-item hty-icon-button" target="_blank" rel="noopener" href="https://yun.yunyoujun.cn/en/guide/" title="文档"><span class="site-state-item-icon"><svg class="icon" aria-hidden="true"><use xlink:href="#icon-settings-line"></use></svg></span></a></nav><hr style="margin-bottom:0.5rem"><div class="links-of-author"><a class="links-of-author-item hty-icon-button" rel="noopener" href="https://music.163.com/#/user/home?id=317989143" title="网易云音乐" target="_blank" style="color:#C20C0C"><svg class="icon" aria-hidden="true"><use xlink:href="#icon-netease-cloud-music-line"></use></svg></a></div><hr style="margin:0.5rem 1rem"><div class="links"><a class="links-item hty-icon-button" href="/albums/" title="ACG图库" style="color:dodgerblue"><svg class="icon" aria-hidden="true"><use xlink:href="#icon-genderless-line"></use></svg></a></div></div><div class="sidebar-panel sidebar-panel-active" id="post-toc-wrap"><div class="post-toc"><div class="post-toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#IO-%E6%A6%82%E5%BF%B5%E5%8C%BA%E5%88%86"><span class="toc-number">1.</span> <span class="toc-text">IO 概念区分</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%94%A8%E6%88%B7%E7%A9%BA%E9%97%B4%E5%92%8C%E5%86%85%E6%A0%B8%E7%A9%BA%E9%97%B4"><span class="toc-number">1.1.</span> <span class="toc-text">用户空间和内核空间</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BF%9B%E7%A8%8B%E5%88%87%E6%8D%A2"><span class="toc-number">1.2.</span> <span class="toc-text">进程切换</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BF%9B%E7%A8%8B%E9%98%BB%E5%A1%9E"><span class="toc-number">1.3.</span> <span class="toc-text">进程阻塞</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#I-O-System-Call-%E7%9A%84%E9%98%BB%E5%A1%9E-%E9%9D%9E%E9%98%BB%E5%A1%9E%EF%BC%8C-%E5%90%8C%E6%AD%A5-%E5%BC%82%E6%AD%A5"><span class="toc-number">1.4.</span> <span class="toc-text">I&#x2F;O System Call 的阻塞&#x2F;非阻塞， 同步&#x2F;异步</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#I-O-%E6%96%B9%E5%BC%8F%E5%AF%B9%E6%AF%94"><span class="toc-number">1.5.</span> <span class="toc-text">I&#x2F;O 方式对比</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">2.</span> <span class="toc-text">总结</span></a></li></ol></div></div></div></aside><main class="sidebar-translate" id="content"><div id="post"><article class="hty-card post-block" itemscope itemtype="https://schema.org/Article"><link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/07/17/%E5%90%8C%E6%AD%A5-%E5%BC%82%E6%AD%A5%E3%80%81%E9%98%BB%E5%A1%9E-%E9%9D%9E%E9%98%BB%E5%A1%9E/"><span hidden itemprop="author" itemscope itemtype="https://schema.org/Person"><meta itemprop="name" content="uTon"><meta itemprop="description"></span><span hidden itemprop="publisher" itemscope itemtype="https://schema.org/Organization"><meta itemprop="name" content="麻将是我的一生之敌-"></span><header class="post-header"><h1 class="post-title" itemprop="name headline">同步/异步、阻塞/非阻塞</h1><div class="post-meta"><div class="post-time" style="display:inline-block"><span class="post-meta-item-icon"><svg class="icon" aria-hidden="true"><use xlink:href="#icon-calendar-line"></use></svg></span> <time title="Created: 2021-07-17 01:40:17" itemprop="dateCreated datePublished" datetime="2021-07-17T01:40:17+08:00">2021-07-17</time></div><div class="post-classify"><span class="post-category"> <span class="post-meta-item-icon" style="margin-right:3px;"><svg class="icon" aria-hidden="true"><use xlink:href="#icon-folder-line"></use></svg></span><span itemprop="about" itemscope itemtype="https://schema.org/Thing"><a class="category-item" href="/categories/%E7%90%86%E8%AE%BA%E7%9F%A5%E8%AF%86/" style="--text-color:var(--hty-text-color)" itemprop="url" rel="index"><span itemprop="text">理论知识</span></a></span></span></div></div></header><section class="post-body" itemprop="articleBody"><div class="post-content markdown-body" style="--smc-primary:#0078E7;"><p>阻塞/非阻塞、同步/异步，每次被问到这个问题都感觉自己清楚但是又说的不好，知道他们两个有区别但当真正去描述的时候又说不出来他俩的区别，准备特别写一篇描述一下，加深一下自己的印象。</p>
+<h3 id="IO-概念区分"><a href="#IO-概念区分" class="headerlink" title="IO 概念区分"></a>IO 概念区分</h3><p>四个相关概念：</p>
+<ul>
+<li>同步（Synchronous）</li>
+<li>异步( Asynchronous)</li>
+<li>阻塞( Blocking )</li>
+<li>非阻塞( Nonblocking)</li>
+</ul>
+<span id="more"></span>
+
+<p>  这四个概念的含义以及相互之间的区别与联系，一直让人难以确定的分辨，这篇博客只能代表本人在此时此刻对与该知识的认知，不确定后期会不会改变，但是还是要学，仅上。</p>
+<p>例如曾经看到的解释如下： <strong>同步/异步</strong></p>
+<ul>
+<li>同步/异步关注的是消息通信机制 (synchronous communication/ asynchronous communication) 。</li>
+<li>所谓同步，就是在发出一个调用时，在没有得到结果之前， 该调用就不返回。</li>
+<li>异步则是相反，调用在发出之后，这个调用就直接返回了，所以没有返回结果</li>
+</ul>
+<p><strong>阻塞/非阻塞</strong></p>
+<ul>
+<li>阻塞/非阻塞关注的是程序在等待调用结果(消息，返回值)时的状态</li>
+<li>阻塞调用是指调用结果返回之前，当前线程会被挂起。调用线程只有在得到结果之后才返回。</li>
+<li>非阻塞调用指在不能立刻得到结果之前，该调用不会阻塞当前线程。</li>
+</ul>
+<p>  上面的解释乍一看大概的解释是 <strong>同步/异步</strong> 与 <strong>阻塞/非阻塞</strong> 用在描述两个不同的维度，可以区别对待，但是稍微推敲一下发现它俩还是有问题。</p>
+<ul>
+<li><p>首先，如果 <strong>“同步”</strong> 是发生了一个调用后，没得到结果之前不返回，那他毫无疑问就是被 <strong>“阻塞”</strong> 了（即调用进程处于 “waiting” 状态）</p>
+</li>
+<li><p>其次，如果 <strong>“异步”</strong> 调用发出以后直接返回了，毫无疑问，这个进程没有被 <strong>“阻塞”</strong>  所以上面的解释是不正确的，或者说是不完善的。让我们看一下《操作系统概念（第九版）》中有关进程间通信的部分是如何解释的：<img src="https://i.loli.net/2020/09/29/7pgbQxJKc6PA3NO.png" alt="image.png" loading="lazy"><img src="https://i.loli.net/2020/09/29/7BOPHEpQbsztiGd.png" alt="image.png" loading="lazy">翻译一下就是：</p>
+<blockquote>
+<p>进程间的通信是通过 send() 和 reveive() 两种基本操作完成的。具体如何实现这两种基础操作，存在着不同的设计。消息传递有可能是<strong>阻塞</strong>的或者是<strong>非阻塞</strong>的-也被称为<strong>同步</strong>或<strong>异步</strong>的。</p>
+</blockquote>
+</li>
+<li><p>阻塞发送（blocking send）：发送方进程会被一直阻塞，直到消息被接收方进程收到</p>
+</li>
+<li><p>非阻塞发送（nonblocking send）：发送方进程调用 send() 后，立即就可以其他操作。</p>
+</li>
+<li><p>阻塞接收（blocking receive）：接收方调用 reveive() 后一直阻塞，直到消息到达可用</p>
+</li>
+<li><p>非阻塞接收（nonblocking receive）：接收方调用 reveive() 函数后，要么得到一个有效的结果，要么得到一个空值，即不会被阻塞</p>
+</li>
+</ul>
+<p>  <strong>上述不同类型的发送方式和不同类型的接收方式，可以自由组合。</strong> 也就是说， 从进程级通信的维度讨论时， 阻塞和同步（非阻塞和异步）就是一对同义词， 且需要针对 <strong>发送方</strong> 和 <strong>接收方</strong> 作区分对待。</p>
+<hr>
+<p>下面对理解同步异步，阻塞非阻塞所需的知识点进行详细叙述</p>
+<hr>
+<h4 id="用户空间和内核空间"><a href="#用户空间和内核空间" class="headerlink" title="用户空间和内核空间"></a>用户空间和内核空间</h4><p>  操作系统为了支持多个应用同时运行，需要保证不同进程之间相对独立（一个进程的崩溃不会影响其他的进程，恶意进程不能直接读取和修改其他进程运行时的代码和数据）。因此操作系统内核<strong>需要拥有高于普通进程的权限</strong>，以此来调度和管理用户的应用程序。</p>
+<p>  于是内存空间被划分为两部分，一部分为内核空间，一部分为用户空间，内核空间存储的代码和数据拥有更高级别的权限。内存访问的<strong>相关硬件</strong>在程序执行期间会进行访问控制（Access Control），使得用户空间的程序不能直接读写内核空间的内存。</p>
+<h4 id="进程切换"><a href="#进程切换" class="headerlink" title="进程切换"></a>进程切换</h4><p><img src="https://i.loli.net/2020/09/29/pjo2Z4KMlguE7xB.png" alt="image.png" loading="lazy"></p>
+<p>上图展示了进程切换中几个最重要的步骤：</p>
+<ol>
+<li>当一个程序正在执行的过程中，中断（interrupt）或 系统调用（system call）发生可以使得 CPU 的控制权会从当前进程转移到操作系统内核</li>
+<li>操作系统内核负责保存进程 ii<em>i</em> 在 CPU 中的上下文（程序计数器，寄存器等）到 PCBiPCB_i<em>P<strong>C</strong>B**i</em>（操作系统分配给进程的一个内存块）中。</li>
+<li>从PCBjPCB_j<em>P<strong>C</strong>B**j</em> 取出进程 jj<em>j</em> 的 CPU 上下文，将 CPU 控制权转移给进程 jj<em>j</em>，开始执行进程 jj<em>j</em> 的指令。</li>
+</ol>
+<p>为了下文的解释，引入几个前置芝士</p>
+<ul>
+<li>中断（interrupt）<ul>
+<li>CPU 微处理器有一个中断信号位，在每个 CPU 时钟周期的末尾， CPU 会去检测那个中断信号位是否有中断信号到达，如果有，则会根据中断优先级决定是否要暂停当前执行的指令，转而去执行处理中断的指令。（其实就是 CPU 层级的 while 轮询）</li>
+</ul>
+</li>
+<li>时钟中断( Clock Interrupt )<ul>
+<li>一个硬件时钟会每隔一段时间（很短）的时间就产生一个中断信号发送给 CPU， CPU 在响应这个中断时，就会去执行操作系统内核的指令，继而将 CPU 的控制权转移给了操作系统内核，可以由操作系统内核决定下一个要被执行的指令。</li>
+</ul>
+</li>
+<li>系统调用（system call）<ul>
+<li>system call 时操作系统提供给应用程序的接口。用户通过调用系统调用来完成那些需要操作系统内核进行的操作，例如键盘、硬盘、网络接口设备的读写等等。</li>
+</ul>
+</li>
+</ul>
+<p>  从上述描述中， 可以看出来， 操作系统在进行进切换时，需要进行一系列的内存读写操作， 这带来了一定的开销。对于一个运行着 UNIX 系统的现代 PC 来说， 进程切换通常至少需要花费 300 us 的时间</p>
+<h4 id="进程阻塞"><a href="#进程阻塞" class="headerlink" title="进程阻塞"></a>进程阻塞</h4><p><img src="https://i.loli.net/2020/09/29/MiF9YyrPbl72SRt.png" alt="image.png" loading="lazy"></p>
+<p>上图展示了一个进程不同的状态：</p>
+<ul>
+<li>New：进程正在被创建.</li>
+<li>Running：进程的指令正在被执行</li>
+<li>Waiting： 进程正在等待一些事件的发生（例如 I/O 的完成或者收到某个信号）</li>
+<li>Ready：进程在等待被操作系统调度</li>
+<li>Terminated：进程执行完毕（可能是被强行终止的）</li>
+</ul>
+<p>  我们所说的“阻塞”是指进程在发起了一个<strong>系统调用</strong>后，由于该系统调用的操作不能立即被完成，需要等待一段时间，于是内核将该进程挂起为<strong>等待（waiting）</strong>状态，以确保它不会被调度执行，占用 CPU 资源。因为在任意时刻，<strong>一个 CPU 核心上只能运行一个进程</strong>。</p>
+<h4 id="I-O-System-Call-的阻塞-非阻塞，-同步-异步"><a href="#I-O-System-Call-的阻塞-非阻塞，-同步-异步" class="headerlink" title="I/O System Call 的阻塞/非阻塞， 同步/异步"></a>I/O System Call 的阻塞/非阻塞， 同步/异步</h4><p>  这里再重新审视 <strong>阻塞/非阻塞 IO</strong> 这个概念， 其实<strong>阻塞和非阻塞</strong>描述的是进程的一个操作是否会使得进程转变为“等待”的状态， 但是为什么我们总是把它和 IO 连在一起讨论呢？</p>
+<p>  原因是，<strong>阻塞</strong>这个词是与系统调用紧密联系在一起的，因为要让一个进程进入<strong>等待（waiting）</strong>状态，要么是它主动调用 wait() 或者 sleep() 等主动挂起自己的操作，要么就是它调用 <code>System Call</code>，而<code>System Call</code>因为涉及 <code>I/O</code> 操作，不能立即完成，于是内核就会先将该进程置为等待状态，调度其他进程的运行，等到它所请求的 <code>I/O</code> 操作完成后，再将其状态改回 <strong>就绪（ready）</strong>态。</p>
+<p>  操作系统内核在执行 System Call 时，CPU 需要与 IO 设备完成一系列物理通信上的交互，其实再一次会涉及到阻塞和非阻塞的问题。例如，操作系统发起了一个读硬盘的请求后，其实是向硬盘设备通过总线发出来一个请求，它既可以阻塞式的等待 IO 设备的返回结果，也可以非阻塞式的继续其他的操作。在现代计算机中，这些物理通信操作基本都是异步完成的。即发出请求后，等待 I/O 设备的中断信号后，再来读取享应的设备缓冲区。但是，大部分操作系统默认用户级应用程序提供的都是阻塞式系统调用（blocking systemcall）接口，因为阻塞式的调用，使得应用级代码的编写更加容易（代码的执行顺序和编写顺序是一致的）。</p>
+<p>  但同样， 现在的大部分操作系统也会提供非阻塞 I/O 系统调用接口（Nonblocking I/O system call）。 一个非阻塞调用不会挂起调用程序， 而是会立即返回一个值， 表示有多少bytes 的数据被成功读取（或写入）。</p>
+<blockquote>
+<p>默认情况下，所有的IO都是阻塞的。</p>
+</blockquote>
+<h4 id="I-O-方式对比"><a href="#I-O-方式对比" class="headerlink" title="I/O 方式对比"></a>I/O 方式对比</h4><p>根据 <a target="_blank" rel="noopener" href="http://book.douban.com/subject/1500149/">《UNIX网络编程：卷一》</a>第六章——I/O复用，书中一共提到了 五种类UNIX下可用的 I/O 模型：</p>
+<ul>
+<li>阻塞式I/O</li>
+<li>非阻塞式I/O</li>
+<li>I/O复用（select，poll，epoll…）</li>
+<li>信号驱动式I/O（SIGIO）</li>
+<li>异步I/O（POSIX的aio_系列函数）</li>
+</ul>
+<p>一个输入操作通常包含两个不同的阶段：</p>
+<ol>
+<li>等待数据准备好</li>
+<li>从内核向进程复制数据</li>
+</ol>
+<p>根据书中的总结</p>
+<p><img src="https://i.loli.net/2020/09/29/4ctvnrPU1bmQNY7.png" alt="image.png" loading="lazy"></p>
+<p>  其实前四种I/O模型都是同步I/O操作，他们的区别在于第一阶段，而他们的第二阶段是一样的：在数据从内核复制到应用缓冲区期间（用户空间），进程阻塞于recvfrom调用。相反，异步I/O模型在这两个阶段都要处理。而且同步 I/O 在 <code>Wiki</code>上是查不到的，甚至无法在 <code>Google</code> 上搜索这个词条，同步 I/O 的范围太广了。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>  用我自己的话总结一下，想要较好的解释这个问题（阻塞/非阻塞、同步/异步），应该分情况回答</p>
+<ul>
+<li>在进程通信层面，阻塞/非阻塞，同步/异步基本是同义词，但是需要注意区分讨论的对象是发送方还是接收方<ul>
+<li>发送方阻塞/非阻塞（同步/异步）和接收方阻塞/非阻塞（同步/异步）是互不影响的。</li>
+</ul>
+</li>
+<li>在 I/O 系统调用层面，同步 I/O 包括 阻塞 I/O 以及 非阻塞 I/O 。但是 <strong>非阻塞 IO 系统调用</strong> 和 <strong>异步 IO 系统调用</strong>存在着一定的差别， 它们都不会阻塞进程， 但是返回结果的方式和内容有所差别， 但是都属于非阻塞系统调用（ non-blocing system call ）</li>
+</ul>
+</div><div id="reward-container"><span class="hty-icon-button button-glow" id="reward-button" title="Donate" onclick="var qr = document.getElementById(&quot;qr&quot;); qr.style.display = (qr.style.display === &quot;none&quot;) ? &quot;block&quot; : &quot;none&quot;;"><svg class="icon" aria-hidden="true"><use xlink:href="#icon-hand-coin-line"></use></svg></span><div id="reward-comment">I'm so cute. Please give me money.</div><div id="qr" style="display:none;"><div style="display:inline-block"><a target="_blank" rel="noopener" href="https://i.loli.net/2021/07/06/gK4Wvo1CtarlDTb.png"><img loading="lazy" src="https://i.loli.net/2021/07/06/gK4Wvo1CtarlDTb.png" alt="微信支付" title="微信支付"></a><div><span style="color:#2DC100"><svg class="icon" aria-hidden="true"><use xlink:href="#icon-wechat-pay-line"></use></svg></span></div></div></div></div><ul class="post-copyright"><li class="post-copyright-author"><strong>Post author: </strong>uTon</li><li class="post-copyright-link"><strong>Post link: </strong><a href="http://yoursite.com/2021/07/17/%E5%90%8C%E6%AD%A5-%E5%BC%82%E6%AD%A5%E3%80%81%E9%98%BB%E5%A1%9E-%E9%9D%9E%E9%98%BB%E5%A1%9E/" title="同步/异步、阻塞/非阻塞">http://yoursite.com/2021/07/17/%E5%90%8C%E6%AD%A5-%E5%BC%82%E6%AD%A5%E3%80%81%E9%98%BB%E5%A1%9E-%E9%9D%9E%E9%98%BB%E5%A1%9E/</a></li><li class="post-copyright-license"><strong>Copyright Notice: </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank" rel="noopener" title="CC BY-NC-SA 4.0 "><svg class="icon"><use xlink:href="#icon-creative-commons-line"></use></svg><svg class="icon"><use xlink:href="#icon-creative-commons-by-line"></use></svg><svg class="icon"><use xlink:href="#icon-creative-commons-nc-line"></use></svg><svg class="icon"><use xlink:href="#icon-creative-commons-sa-line"></use></svg></a> unless otherwise stated.</li></ul></section></article><div class="post-nav"><div class="post-nav-item"></div><div class="post-nav-item"><a class="post-nav-next" href="/2021/07/17/MySQL%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C/" rel="next" title="MySQL基本操作"><span class="post-nav-text">MySQL基本操作</span><svg class="icon" aria-hidden="true"><use xlink:href="#icon-arrow-right-s-line"></use></svg></a></div></div></div><div class="hty-card" id="comment"><div class="comment-tooltip text-center"><span>要不要和我说些什么？</span><br></div></div></main><footer class="sidebar-translate" id="footer"><div class="copyright"><span>&copy; 2019 – 2021 </span><span class="with-love" id="animate"><svg class="icon" aria-hidden="true"><use xlink:href="#icon-cloud-line"></use></svg></span><span class="author"> uTon</span></div><div class="powered"><span>Powered by <a href="https://hexo.io" target="_blank" rel="noopener">Hexo</a> v5.4.0</span><span class="footer-separator">|</span><span>Theme - <a rel="noopener" href="https://github.com/YunYouJun/hexo-theme-yun" target="_blank"><span>Yun</span></a> v1.6.1</span></div></footer><a class="hty-icon-button" id="back-to-top" aria-label="back-to-top" href="#"><svg class="icon" aria-hidden="true"><use xlink:href="#icon-arrow-up-s-line"></use></svg><svg class="progress-circle-container" viewBox="0 0 100 100"><circle class="progress-circle" id="progressCircle" cx="50" cy="50" r="48" fill="none" stroke="#0078E7" stroke-width="2" stroke-linecap="round"></circle></svg></a></div></body></html>
